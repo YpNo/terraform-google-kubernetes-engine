@@ -82,9 +82,47 @@ module "standard" {
   firewall_inbound_ports            = local.firewall_inbound_ports
   gateway_api_channel               = "CHANNEL_STANDARD"
 
+  # Network policy, control-plane access & feature toggles
+  enable_fqdn_network_policy               = var.enable_fqdn_network_policy
+  enable_cilium_clusterwide_network_policy = var.enable_cilium_clusterwide_network_policy
+  gcp_public_cidrs_access_enabled          = var.gcp_public_cidrs_access_enabled
+  anonymous_authentication_config_mode     = var.anonymous_authentication_config_mode
+  enable_tpu                               = var.enable_tpu
+
+  # Cluster lifecycle
+  kubernetes_version     = var.kubernetes_version
+  maintenance_start_time = var.maintenance_start_time
+  maintenance_end_time   = var.maintenance_end_time
+  maintenance_recurrence = var.maintenance_recurrence
+  maintenance_exclusions = var.maintenance_exclusions
+
+  # Shared VPC
+  network_project_id = var.network_project_id
+
+  # Workload add-ons (VPA set per-block to preserve each submodule's default)
+  http_load_balancing = var.http_load_balancing
+
+  # Security
+  boot_disk_kms_key            = var.boot_disk_kms_key
+  enable_binary_authorization  = var.enable_binary_authorization
+  enable_confidential_nodes    = var.enable_confidential_nodes
+  enable_secret_manager_addon  = var.enable_secret_manager_addon
+  in_transit_encryption_config = var.in_transit_encryption_config
+
+  # Resource usage export (no-op unless a BigQuery dataset id is supplied)
+  resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
+
+  # Node service account
+  create_service_account = var.create_service_account
+  service_account        = var.service_account
+  service_account_name   = var.service_account_name
+  grant_registry_access  = var.grant_registry_access
+  registry_project_ids   = var.registry_project_ids
+
   # Scaling
-  horizontal_pod_autoscaling = true
-  cluster_autoscaling        = var.cluster_autoscaling
+  horizontal_pod_autoscaling      = true
+  cluster_autoscaling             = var.cluster_autoscaling
+  enable_vertical_pod_autoscaling = coalesce(var.enable_vertical_pod_autoscaling, false)
 
   # Add-ons & exports
   config_connector                   = var.config_connector
@@ -102,6 +140,10 @@ module "standard" {
   node_pools                            = var.node_pools
   node_pools_cgroup_mode                = var.nodepools_cgroup_mode
   node_pools_linux_node_configs_sysctls = var.node_pools_linux_node_configs_sysctls
+  node_pools_labels                     = var.node_pools_labels
+  node_pools_metadata                   = var.node_pools_metadata
+  node_pools_resource_labels            = var.node_pools_resource_labels
+  node_pools_resource_manager_tags      = var.node_pools_resource_manager_tags
   node_pools_oauth_scopes               = local.node_pools_oauth_scopes
   node_pools_taints                     = local.node_pools_taints
   node_pools_tags                       = local.node_pools_tags
@@ -141,9 +183,10 @@ module "autopilot" {
   master_ipv4_cidr_block        = local.master_ipv4_cidr_block
   master_global_access_enabled  = var.enable_private_nodes
 
-  horizontal_pod_autoscaling = true
-  dns_cache                  = true
-  dns_allow_external_traffic = true
+  horizontal_pod_autoscaling      = true
+  enable_vertical_pod_autoscaling = coalesce(var.enable_vertical_pod_autoscaling, true)
+  dns_cache                       = true
+  dns_allow_external_traffic      = true
 
   # Observability
   logging_enabled_components    = var.logging_enabled_components
@@ -166,6 +209,43 @@ module "autopilot" {
   firewall_inbound_ports            = local.firewall_inbound_ports
   gateway_api_channel               = "CHANNEL_STANDARD"
 
+  # Network policy, control-plane access & feature toggles
+  enable_fqdn_network_policy               = var.enable_fqdn_network_policy
+  enable_cilium_clusterwide_network_policy = var.enable_cilium_clusterwide_network_policy
+  gcp_public_cidrs_access_enabled          = var.gcp_public_cidrs_access_enabled
+  anonymous_authentication_config_mode     = var.anonymous_authentication_config_mode
+  enable_tpu                               = var.enable_tpu
+
+  # Cluster lifecycle
+  kubernetes_version     = var.kubernetes_version
+  maintenance_start_time = var.maintenance_start_time
+  maintenance_end_time   = var.maintenance_end_time
+  maintenance_recurrence = var.maintenance_recurrence
+  maintenance_exclusions = var.maintenance_exclusions
+
+  # Shared VPC
+  network_project_id = var.network_project_id
+
+  # Workload add-ons (VPA set per-block to preserve each submodule's default)
+  http_load_balancing = var.http_load_balancing
+
+  # Security
+  boot_disk_kms_key            = var.boot_disk_kms_key
+  enable_binary_authorization  = var.enable_binary_authorization
+  enable_confidential_nodes    = var.enable_confidential_nodes
+  enable_secret_manager_addon  = var.enable_secret_manager_addon
+  in_transit_encryption_config = var.in_transit_encryption_config
+
+  # Resource usage export (no-op unless a BigQuery dataset id is supplied)
+  resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
+
+  # Node service account
+  create_service_account = var.create_service_account
+  service_account        = var.service_account
+  service_account_name   = var.service_account_name
+  grant_registry_access  = var.grant_registry_access
+  registry_project_ids   = var.registry_project_ids
+
   # Add-ons & exports
   notification_config_topic          = var.notification_config_topic
   enable_cost_allocation             = var.enable_cost_allocation
@@ -178,4 +258,14 @@ module "autopilot" {
   fleet_project_grant_service_agent = var.fleet_project_grant_service_agent
 
   depends_on = [google_project_service.container]
+}
+
+module "mesh" {
+  count  = var.csm_enabled ? 1 : 0
+  source = "./modules/mesh"
+
+  project_id          = var.project_id
+  network_project_id  = var.network_project_id != "" ? var.network_project_id : null
+  membership_id       = coalesce(one(module.standard[*].fleet_membership), one(module.autopilot[*].fleet_membership))
+  membership_location = var.membership_location
 }

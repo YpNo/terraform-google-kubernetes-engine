@@ -90,6 +90,42 @@ variable "node_pools_tags" {
   default     = {}
 }
 
+variable "node_pools_labels" {
+  description = "Map of maps of Kubernetes node labels by node-pool name."
+  type        = map(map(string))
+  default = {
+    all               = {}
+    default-node-pool = {}
+  }
+}
+
+variable "node_pools_metadata" {
+  description = "Map of maps of node metadata by node-pool name."
+  type        = map(map(string))
+  default = {
+    all               = {}
+    default-node-pool = {}
+  }
+}
+
+variable "node_pools_resource_labels" {
+  description = "Map of maps of GCE resource labels by node-pool name."
+  type        = map(map(string))
+  default = {
+    all               = {}
+    default-node-pool = {}
+  }
+}
+
+variable "node_pools_resource_manager_tags" {
+  description = "Map of maps of Resource Manager tags by node-pool name."
+  type        = map(map(string))
+  default = {
+    all               = {}
+    default-node-pool = {}
+  }
+}
+
 variable "node_pools_linux_node_configs_sysctls" {
   description = "Map of maps of Linux node sysctls by node-pool name."
   type        = map(map(string))

@@ -8,6 +8,30 @@ variable "config_connector" {
   default     = false
 }
 
+variable "enable_tpu" {
+  description = "Enable Cloud TPU resources in the cluster. WARNING: changing this after creation is destructive."
+  type        = bool
+  default     = false
+}
+
+variable "http_load_balancing" {
+  description = "Enable the HTTP (L7) load balancing add-on."
+  type        = bool
+  default     = true
+}
+
+variable "enable_vertical_pod_autoscaling" {
+  description = "Enable Vertical Pod Autoscaling. Null preserves the submodule default (Standard: off, Autopilot: on)."
+  type        = bool
+  default     = null
+}
+
+variable "resource_usage_export_dataset_id" {
+  description = "BigQuery dataset ID for resource usage export. REQUIRED for enable_resource_consumption_export / enable_network_egress_export to take effect; empty string disables export."
+  type        = string
+  default     = ""
+}
+
 variable "workload_vulnerability_mode" {
   description = "Workload vulnerability scanning mode. One of '', 'VULNERABILITY_DISABLED', 'VULNERABILITY_BASIC'."
   type        = string
@@ -61,4 +85,23 @@ variable "fleet_project_grant_service_agent" {
   description = "Grant the GKE service agent 'roles/gkehub.serviceAgent' on the fleet project. Only used when fleet_project is set."
   type        = bool
   default     = false
+}
+
+# --- Cloud Service Mesh (CSM) -------------------------------------------------------------------
+
+variable "csm_enabled" {
+  type        = bool
+  description = "Enable Cloud Service Mesh (CSM). Requires fleet_project to be set so the cluster is registered to a fleet (CSM is provisioned via fleet membership)."
+  default     = false
+
+  validation {
+    condition     = !var.csm_enabled || var.fleet_project != null
+    error_message = "csm_enabled requires fleet_project to be set: the cluster must be registered to a fleet before Cloud Service Mesh can be provisioned."
+  }
+}
+
+variable "membership_location" {
+  description = "The location of the membership."
+  type        = string
+  default     = "global"
 }

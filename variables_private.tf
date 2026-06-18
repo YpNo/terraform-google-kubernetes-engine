@@ -13,6 +13,12 @@ variable "master_authorized_networks" {
   default = []
 }
 
+variable "gcp_public_cidrs_access_enabled" {
+  description = "Allow control-plane access from Google Cloud public IP ranges. Null leaves it at the provider default."
+  type        = bool
+  default     = null
+}
+
 variable "enable_private_endpoint" {
   description = "When true, the cluster's control plane is reachable only on its private endpoint (no public control-plane IP). Only applies to private clusters."
   type        = bool

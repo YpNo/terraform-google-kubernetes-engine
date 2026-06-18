@@ -51,6 +51,11 @@ locals {
   # Per-attribute splat across the two count-gated blocks. Exactly one block
   # is active, so one() yields its value. Done per attribute (not on the whole
   # object) so differing output schemas/sensitivity don't bleed across.
+  cluster_id = one(concat(
+    module.standard[*].cluster_id,
+    module.autopilot[*].cluster_id,
+  ))
+
   cluster_name = one(concat(
     module.standard[*].name,
     module.autopilot[*].name,

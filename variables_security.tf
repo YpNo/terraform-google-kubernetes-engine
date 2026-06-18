@@ -21,6 +21,52 @@ variable "database_encryption_key_name" {
   }
 }
 
+variable "anonymous_authentication_config_mode" {
+  description = "Restrict or enable anonymous access to the cluster. One of ENABLED or LIMITED; null leaves it at the provider default."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.anonymous_authentication_config_mode == null || contains(["ENABLED", "LIMITED"], coalesce(var.anonymous_authentication_config_mode, "null"))
+    error_message = "anonymous_authentication_config_mode must be ENABLED, LIMITED or null."
+  }
+}
+
+variable "boot_disk_kms_key" {
+  description = "CMEK crypto key (full resource name) used to encrypt node boot disks, unless overridden per node pool. Null uses Google-managed encryption."
+  type        = string
+  default     = null
+}
+
+variable "enable_binary_authorization" {
+  description = "Enable the Binary Authorization admission controller."
+  type        = bool
+  default     = false
+}
+
+variable "enable_confidential_nodes" {
+  description = "Enable Confidential GKE Nodes (memory encryption)."
+  type        = bool
+  default     = false
+}
+
+variable "enable_secret_manager_addon" {
+  description = "Enable the Secret Manager add-on for the cluster."
+  type        = bool
+  default     = false
+}
+
+variable "in_transit_encryption_config" {
+  description = "Inter-node in-transit encryption. One of IN_TRANSIT_ENCRYPTION_DISABLED or IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT; null leaves it at the provider default."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.in_transit_encryption_config == null || contains(["IN_TRANSIT_ENCRYPTION_DISABLED", "IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT"], coalesce(var.in_transit_encryption_config, "null"))
+    error_message = "in_transit_encryption_config must be IN_TRANSIT_ENCRYPTION_DISABLED, IN_TRANSIT_ENCRYPTION_INTER_NODE_TRANSPARENT or null."
+  }
+}
+
 variable "kms_key_ring_name" {
   description = "The name for the KMS key ring used for GKE database encryption."
   type        = string

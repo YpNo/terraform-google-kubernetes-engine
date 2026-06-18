@@ -117,6 +117,15 @@ Runnable examples for all four shapes are in [`examples/`](examples).
 | `node_pools` | list(object) | `[]` | Standard only |
 | `cluster_autoscaling` | object | `{enabled=false}` | Standard only |
 | `database_encryption_key_name` | string | `null` | BYO CMEK; `null` = module-managed key |
+| `network_project_id` | string | `""` | Set for Shared VPC (network in a host project) |
+| `kubernetes_version` | string | `"latest"` | Control-plane version pin |
+| `resource_usage_export_dataset_id` | string | `""` | **Required** for the export flags to take effect |
+| `enable_vertical_pod_autoscaling` | bool | `null` | `null` keeps submodule default (Std off / AP on) |
+| `boot_disk_kms_key` | string | `null` | CMEK for node boot disks |
+
+> **Resource usage export:** `enable_resource_consumption_export` /
+> `enable_network_egress_export` only take effect when
+> `resource_usage_export_dataset_id` is set to a BigQuery dataset.
 
 See the `variables_*.tf` files for the full, grouped input list and per-field
 descriptions/validations.
