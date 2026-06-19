@@ -139,6 +139,7 @@ jobs:
           # findings inside the downloaded community kubernetes-engine module
           # (terraform-google-modules/...), which we don't own.
           TRIVY_TF_EXCLUDE_DOWNLOADED_MODULES: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           scan-type: config
           scan-ref: .
