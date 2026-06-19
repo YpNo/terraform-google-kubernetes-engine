@@ -73,7 +73,12 @@ enable_private_nodes ──► private_cluster_config toggles (collapse to publi
 | `variables_dns.tf` | Cloud DNS provider/scope |
 | `variables_release.tf` | Release channel |
 | `variables_nodepools.tf` | Node pools & autoscaling (Standard only) |
-| `variables_features.tf` | Add-ons, exports, fleet |
+| `variables_features.tf` | Add-ons, exports, fleet, CSM |
+| `variables_serviceaccount.tf` | Node service-account management |
+| `variables_kubernetes_objects.tf` | Inputs for the in-cluster object submodules |
+| `backup_plan.tf` / `restore_plan.tf` | Calls the `backupplan` / `restoreplan` submodules |
+| `kubernetes_objects.tf` | Calls the in-cluster object modules (needs a `kubernetes` provider) |
+| [`modules/`](modules) | Shipped submodules — see [Submodules](#submodules) |
 
 ## Prerequisites
 
@@ -138,6 +143,29 @@ Runnable examples for all four shapes are in [`examples/`](examples).
 
 See the `variables_*.tf` files for the full, grouped input list and per-field
 descriptions/validations.
+
+## Submodules
+
+This repository ships optional submodules under [`modules/`](modules) for fleet,
+Cloud Service Mesh and Backup-for-GKE management. Each has its own README with a
+usage example and generated input/output tables. They can be used standalone; the
+Backup/Mesh ones are also wired into the root module automatically from the inputs
+noted below.
+
+| Submodule | Purpose | Root wiring |
+|-----------|---------|-------------|
+| [`fleets`](modules/fleets) | Creates the **fleet host** (`google_gke_hub_fleet`) and grants the GKE Hub service agent. Apply **once per fleet host project**. | Standalone. Clusters join by setting `fleet_project` on this module. |
+| [`hub-feature`](modules/hub-feature) | Enables a single fleet-level GKE Hub feature (e.g. `servicemesh`, `configmanagement`, `policycontroller`). Thin building block. | Used internally by `mesh`. |
+| [`mesh`](modules/mesh) | Provisions **managed Cloud Service Mesh** on a fleet-registered cluster (mesh feature + per-membership config + service-agent IAM). | Auto-applied when `csm_enabled = true` (which requires `fleet_project`). |
+| [`backupplan`](modules/backupplan) | Creates **Backup-for-GKE** backup plans for the cluster. | Auto-applied from `backup_plans`. |
+| [`restoreplan`](modules/restoreplan) | Creates **Backup-for-GKE** restore plans (supports cross-project/cluster restore). | Auto-applied from `restore_plans`. |
+
+**External modules** (not in this repo) are also composed by the root: the
+community [`terraform-google-modules/kubernetes-engine`](https://github.com/terraform-google-modules/terraform-google-kubernetes-engine)
+cluster submodules and `terraform-google-modules/kms` for the cluster and CMEK
+key, and the [`terraform-kubernetes-objects`](https://github.com/YpNo/terraform-kubernetes-objects)
+modules for optional in-cluster objects — the latter require a caller-configured
+`kubernetes` provider (see [Kubernetes provider](#kubernetes-provider-in-cluster-objects)).
 
 ## Testing
 
