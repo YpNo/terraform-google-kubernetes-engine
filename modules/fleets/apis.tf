@@ -24,7 +24,7 @@ resource "google_project_service" "gkeconnect" {
 # --- Enable Anthos API ---
 
 resource "google_project_service" "anthos" {
-  count = ((var.security_posture_mode != "DISABLED" || var.security_posture_vulnerability_mode != "VULNERABILITY_DISABLED") || (var.binary_authorization_evaluation_mode != "DISABLED" || length(var.binary_authorization_policy_bindings) > 0)) ? 1 : 0
+  count = local.default_cluster_config_enabled ? 1 : 0
 
   project = var.project_id
   service = "anthos.googleapis.com"

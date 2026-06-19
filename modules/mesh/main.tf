@@ -11,6 +11,8 @@ module "hub_feature" {
 
   project_id   = var.project_id
   feature_name = "servicemesh"
+
+  depends_on = [google_project_service.mesh]
 }
 
 # resource "google_gke_hub_membership" "membership" {

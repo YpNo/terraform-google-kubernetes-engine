@@ -23,6 +23,12 @@ output "gke_cluster_endpoint_dns" {
   value       = local.cluster_endpoint_dns
 }
 
+output "gke_cluster_ca_certificate" {
+  description = "Base64-encoded public CA certificate of the cluster. Use with gke_cluster_endpoint to configure a kubernetes provider in the calling root."
+  value       = local.cluster_ca_certificate
+  sensitive   = true
+}
+
 output "service_account" {
   description = "The service account used by cluster nodes."
   value       = local.service_account

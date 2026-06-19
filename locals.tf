@@ -66,6 +66,11 @@ locals {
     module.autopilot[*].endpoint,
   ))
 
+  cluster_ca_certificate = one(concat(
+    module.standard[*].ca_certificate,
+    module.autopilot[*].ca_certificate,
+  ))
+
   cluster_endpoint_dns = one(concat(
     module.standard[*].endpoint_dns,
     module.autopilot[*].endpoint_dns,
