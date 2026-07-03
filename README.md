@@ -180,6 +180,35 @@ regardless of which is active. `terraform test` runs plan-mode unit tests
 (mock providers, no credentials) covering the selector, the Autopilot guards
 and the input validations.
 
+## Dedicated / sovereign universes
+
+The module works in **Google Cloud Dedicated** (and other non-`googleapis.com`
+universes). API endpoints are handled by the provider — the **caller** sets
+`universe_domain` on the `google`/`google-beta` providers (this module configures
+no providers):
+
+```hcl
+provider "google"      { universe_domain = "my-universe.goog" }
+provider "google-beta" { universe_domain = "my-universe.goog" }
+```
+
+Service-agent email **domains** also differ in a universe. The `fleets` and
+`mesh` submodules already read their agents from `google_project_service_identity`
+(provider-computed, so universe-correct automatically). The one email the root
+module constructs itself — the GKE agent granted CMEK access — is made
+universe-aware by setting `universe`:
+
+```hcl
+module "gke" {
+  # ...
+  universe = { prefix = "my-universe" } # -> ...@container-engine-robot.my-universe-system.iam.gserviceaccount.com
+}
+```
+
+Leave `universe = null` (default) for the public `googleapis.com` universe.
+Requires a provider version that supports `universe_domain` (satisfied by the
+pinned `>= 6.15.0`).
+
 ## Security
 
 - Customer-managed (CMEK) KMS key for database (etcd) encryption, with the GKE

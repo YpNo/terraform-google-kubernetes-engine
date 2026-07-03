@@ -19,8 +19,9 @@ module "kms" {
   keys       = [var.kms_key_name]
   purpose    = "ENCRYPT_DECRYPT"
 
-  encrypters = ["serviceAccount:service-${data.google_project.this.number}@container-engine-robot.iam.gserviceaccount.com"]
-  decrypters = ["serviceAccount:service-${data.google_project.this.number}@container-engine-robot.iam.gserviceaccount.com"]
+  # Universe-aware GKE service-agent email (see locals.tf).
+  encrypters = [local.gke_service_agent]
+  decrypters = [local.gke_service_agent]
 
   set_encrypters_for = [var.kms_key_name]
   set_decrypters_for = [var.kms_key_name]
