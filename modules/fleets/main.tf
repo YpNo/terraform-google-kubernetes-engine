@@ -1,7 +1,3 @@
-data "google_project" "this" {
-  project_id = var.project_id
-}
-
 locals {
   # null = "not configured" -> omit the block. Each inner block is gated
   # independently so configuring one feature never emits a DISABLED stub of the
@@ -49,8 +45,21 @@ resource "google_gke_hub_fleet" "this" {
   ]
 }
 
+# Creates the GKE Hub service agent (and returns its member) at apply time,
+# instead of reading data.google_project at plan time. This avoids the failure
+# when the project is created in the same run, and guarantees the agent exists
+# before the IAM grant below.
+resource "google_project_service_identity" "gkehub" {
+  provider = google-beta
+
+  project = var.project_id
+  service = "gkehub.googleapis.com"
+
+  depends_on = [google_project_service.gkehub]
+}
+
 resource "google_project_iam_member" "gkehub_service_agent" {
   project = var.project_id
   role    = "roles/gkehub.serviceAgent"
-  member  = "serviceAccount:service-${data.google_project.this.number}@gcp-sa-gkehub.iam.gserviceaccount.com"
+  member  = google_project_service_identity.gkehub.member
 }
