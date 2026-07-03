@@ -10,6 +10,12 @@ locals {
   enable_private_endpoint = var.enable_private_nodes && var.enable_private_endpoint
   master_ipv4_cidr_block  = var.enable_private_nodes ? var.master_ipv4_cidr_block : null
 
+  # --- Universe-aware service-agent email ---------------------------------
+  # Default universe -> "" (…@container-engine-robot.iam.gserviceaccount.com).
+  # Dedicated universe -> "<prefix>-system." infix, matching the provider.
+  universe_sa_infix = var.universe == null ? "" : "${var.universe.prefix}-system."
+  gke_service_agent = "serviceAccount:service-${data.google_project.this.number}@container-engine-robot.${local.universe_sa_infix}iam.gserviceaccount.com"
+
   # --- Enforced org best-practices (non-overridable on purpose) -----------
   authenticator_security_group = "gke-security-groups@maisonsdumonde.com"
   firewall_inbound_ports       = ["8443", "9443", "15017"]

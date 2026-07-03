@@ -188,6 +188,15 @@ run "recurring_maintenance_requires_rfc3339_start" {
   expect_failures = [var.maintenance_start_time]
 }
 
+# --- Dedicated universe: plans cleanly with a universe prefix set -----------
+run "universe_plan" {
+  command = plan
+
+  variables {
+    universe = { prefix = "u1" }
+  }
+}
+
 # --- Groups A-G plan cleanly when set (Standard) ----------------------------
 run "extended_inputs_plan" {
   command = plan
