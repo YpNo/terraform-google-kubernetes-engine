@@ -5,7 +5,7 @@
 ###############################################################################
 
 module "storage_class" {
-  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/storageclass?ref=v0.1.0"
+  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/storageclass?ref=v2.0.0"
 
   storage_classes = var.storage_classes
 
@@ -13,7 +13,7 @@ module "storage_class" {
 }
 
 module "priority_class" {
-  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/priorityclass_v1?ref=v0.1.0"
+  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/priorityclass_v1?ref=v2.0.0"
 
   priority_classes = var.priority_classes
 
@@ -21,7 +21,7 @@ module "priority_class" {
 }
 
 module "cluster_roles" {
-  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/clusterrole_v1?ref=v0.1.0"
+  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/clusterrole_v1?ref=v2.0.0"
 
   cluster_roles = var.cluster_roles
 
@@ -29,7 +29,7 @@ module "cluster_roles" {
 }
 
 module "cluster_role_bindings" {
-  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/clusterrolebinding_v1?ref=v0.1.0"
+  source = "github.com/YpNo/terraform-kubernetes-objects//modules/kubernetes-objects/clusterrolebinding_v1?ref=v2.0.0"
 
   cluster_role_bindings = var.cluster_role_bindings
 
