@@ -14,7 +14,7 @@
 # --- Standard (public or private nodes) --------------------------------------
 module "standard" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster-update-variant"
-  version = "~> 44.2"
+  version = "~> 45.0"
 
   count = local.is_standard ? 1 : 0
 
@@ -156,7 +156,7 @@ module "standard" {
 # shielded-nodes, datapath, gcfs or DNS-provider inputs are accepted.
 module "autopilot" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
-  version = "~> 44.2"
+  version = "~> 45.0"
 
   count = local.is_autopilot ? 1 : 0
 
