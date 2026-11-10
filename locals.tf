@@ -87,3 +87,22 @@ locals {
     module.autopilot[*].service_account,
   ))
 }
+
+locals {
+  # --- Fleet membership (mode-agnostic) -----------------------------------
+  # The upstream modules return google_container_cluster.fleet[0].membership,
+  # i.e. the full resource name
+  #   //gkehub.googleapis.com/projects/<fleet>/locations/<loc>/memberships/<id>
+  # and null when fleet_project is null. one() over the two count-gated blocks
+  # keeps that null instead of erroring the way coalesce() would on two nulls.
+  fleet_membership = one(concat(
+    module.standard[*].fleet_membership,
+    module.autopilot[*].fleet_membership,
+  ))
+
+  # google_gke_hub_feature_membership takes the *short* membership id plus its
+  # location (see fleet.0.membership_id / fleet.0.membership_location in the
+  # google_container_cluster docs), so both are derived here once.
+  fleet_membership_id       = local.fleet_membership == null ? null : regex("memberships/([^/]+)$", local.fleet_membership)[0]
+  fleet_membership_location = local.fleet_membership == null ? null : regex("locations/([^/]+)/memberships/", local.fleet_membership)[0]
+}

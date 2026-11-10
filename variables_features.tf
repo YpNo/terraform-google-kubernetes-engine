@@ -101,7 +101,7 @@ variable "csm_enabled" {
 }
 
 variable "membership_location" {
-  description = "The location of the membership."
+  description = "Location of the fleet membership used by Cloud Service Mesh. Null (default) derives it from the membership name created by fleet_project (the cluster location). Only set this to override that derivation."
   type        = string
-  default     = "global"
+  default     = null
 }

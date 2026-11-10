@@ -6,6 +6,38 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-11-10
+
+### Added
+
+- Root outputs `fleet_membership` (full resource name,
+  `//gkehub.googleapis.com/projects/{project}/locations/{location}/memberships/{id}`),
+  `fleet_membership_id` (short id) and `fleet_membership_location`. They are
+  mode-agnostic and `null` when `fleet_project` is unset, so a separate root can
+  enable fleet features for the cluster (e.g. `modules/mesh` in a dedicated
+  fleet host project).
+- `modules/mesh` accepts either the short membership id or the full membership
+  resource name in `membership_id`, derives the short id and the location from
+  the latter, and exposes `project_id`, `membership_id` and
+  `membership_location` outputs.
+- Plan-mode tests for the fleet outputs and the mesh membership normalisation.
+
+### Changed
+
+- `membership_location` (root and `modules/mesh`) now defaults to `null`, meaning
+  "derive from the membership name"; `global` is only used for a bare short id
+  with no location given. Set it explicitly to override.
+
+### Fixed
+
+- `csm_enabled` now manages the Service Mesh feature membership in the fleet
+  host project (`coalesce(var.fleet_project, var.project_id)`) instead of the
+  cluster project. With a dedicated fleet host the feature membership was
+  targeted at the wrong project; same-project fleets are unaffected.
+- The internal `mesh` wiring passed the full membership resource name as
+  `membership` together with `membership_location = "global"`; it now passes the
+  short id and the location the membership was actually created in.
+
 ## [0.1.0] - 2026-06-19
 
 ### Added
@@ -55,5 +87,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   computed-`count`/`||`-on-strings wiring, and null-based gating of the fleet
   `default_cluster_config`.
 
-[Unreleased]: https://github.com/YpNo/terraform-google-kubernetes-engine/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/YpNo/terraform-google-kubernetes-engine/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/YpNo/terraform-google-kubernetes-engine/compare/v0.2.3...v0.2.4
 [0.1.0]: https://github.com/YpNo/terraform-google-kubernetes-engine/releases/tag/v0.1.0

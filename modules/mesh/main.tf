@@ -1,5 +1,18 @@
 locals {
   network_project_id = var.network_project_id != null ? var.network_project_id : var.project_id
+
+  # membership_id may be the short id ("my-cluster") or the full resource name a
+  # fleet-registered cluster reports
+  # ("//gkehub.googleapis.com/projects/<fleet>/locations/<loc>/memberships/<id>").
+  # google_gke_hub_feature_membership wants the short id plus membership_location,
+  # so normalise here. Both locals stay unknown-safe for plan-time values.
+  membership_is_resource_name = can(regex("memberships/", var.membership_id))
+  membership_id               = local.membership_is_resource_name ? regex("memberships/([^/]+)$", var.membership_id)[0] : var.membership_id
+  membership_name_location    = local.membership_is_resource_name ? regex("locations/([^/]+)/memberships/", var.membership_id)[0] : null
+
+  # Explicit input wins; otherwise the location embedded in the resource name;
+  # "global" only as the provider default when a bare short id is given.
+  membership_location = coalesce(var.membership_location, local.membership_name_location, "global")
 }
 
 # Creates the Service Mesh service agent (and returns its member) at apply time,
@@ -42,8 +55,8 @@ resource "google_gke_hub_feature_membership" "mesh" {
   project             = var.project_id
   location            = "global"
   feature             = module.hub_feature.name
-  membership          = var.membership_id
-  membership_location = var.membership_location
+  membership          = local.membership_id
+  membership_location = local.membership_location
   mesh {
     management = var.mesh_management # "MANAGEMENT_AUTOMATIC"
   }
