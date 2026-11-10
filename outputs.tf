@@ -33,3 +33,20 @@ output "service_account" {
   description = "The service account used by cluster nodes."
   value       = local.service_account
 }
+
+# --- Fleet membership (mode-agnostic) -----------------------------------------
+
+output "fleet_membership" {
+  description = "Full resource name of the cluster's fleet membership (//gkehub.googleapis.com/projects/{project}/locations/{location}/memberships/{id}). Null when fleet_project is null."
+  value       = local.fleet_membership
+}
+
+output "fleet_membership_id" {
+  description = "Short id of the cluster's fleet membership (the last segment of fleet_membership), as expected by google_gke_hub_feature_membership.membership. Null when fleet_project is null."
+  value       = local.fleet_membership_id
+}
+
+output "fleet_membership_location" {
+  description = "Location of the cluster's fleet membership (the locations/{location} segment of fleet_membership), as expected by google_gke_hub_feature_membership.membership_location. Null when fleet_project is null."
+  value       = local.fleet_membership_location
+}

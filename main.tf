@@ -264,8 +264,14 @@ module "mesh" {
   count  = var.csm_enabled ? 1 : 0
   source = "./modules/mesh"
 
-  project_id          = var.project_id
-  network_project_id  = var.network_project_id != "" ? var.network_project_id : null
-  membership_id       = coalesce(one(module.standard[*].fleet_membership), one(module.autopilot[*].fleet_membership))
+  # The feature membership must live in the fleet host project, not the cluster
+  # project. csm_enabled already requires fleet_project, so the fallback only
+  # documents intent.
+  project_id         = coalesce(var.fleet_project, var.project_id)
+  network_project_id = var.network_project_id != "" ? var.network_project_id : null
+
+  # Full membership name; the submodule derives the short id and, unless
+  # membership_location is set explicitly, the location from it.
+  membership_id       = local.fleet_membership
   membership_location = var.membership_location
 }

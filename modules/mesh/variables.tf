@@ -10,14 +10,14 @@ variable "network_project_id" {
 }
 
 variable "membership_id" {
-  description = "The ID of the GKE Hub Membership to which this Service Mesh feature will be enabled. This typically follows the format 'projects/{project}/locations/{location}/memberships/{membership_id}'."
+  description = "The fleet membership of the cluster to enable Cloud Service Mesh on. Accepts either the short membership id ('my-cluster') or the full resource name reported by a fleet-registered cluster ('//gkehub.googleapis.com/projects/{project}/locations/{location}/memberships/{id}'); the short id and location are derived from the latter."
   type        = string
 }
 
 variable "membership_location" {
-  description = "The location of the membership."
+  description = "The location of the membership. Null (default) uses the location embedded in a full membership_id resource name, falling back to 'global' for a bare short id."
   type        = string
-  default     = "global"
+  default     = null
 }
 
 variable "mesh_management" {

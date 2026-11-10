@@ -28,19 +28,28 @@ Standalone:
 module "mesh" {
   source = "github.com/YpNo/terraform-google-kubernetes-engine//modules/mesh?ref=v0.1.0"
 
-  project_id    = "my-project"
-  membership_id = module.gke.fleet_membership # from a fleet-registered cluster
+  project_id    = "my-fleet-host-project"      # the fleet host project, not the cluster project
+  membership_id = module.gke.fleet_membership # full membership name from a fleet-registered cluster
+  # membership_location = "europe-west1"      # optional: derived from membership_id when null
   # network_project_id = "host-project"       # only for Shared VPC
   # mesh_management    = "MANAGEMENT_AUTOMATIC"
 }
 ```
 
-> **Membership format (known caveat):** `membership_id` /`membership_location`
-> map directly to the `google_gke_hub_feature_membership` arguments. A GKE
-> cluster's `fleet_membership` output is a full resource path
-> (`projects/.../locations/.../memberships/NAME`); depending on provider version
-> you may need to pass the **short** membership id with `membership_location` set
-> separately. Verify against a real apply for your setup.
+`membership_id` accepts either form of a fleet membership:
+
+- the **full resource name** a fleet-registered cluster reports
+  (`//gkehub.googleapis.com/projects/{project}/locations/{location}/memberships/{id}`,
+  i.e. the root module's `fleet_membership` output): the short id and the
+  location are derived from it; or
+- the **short id** (the root module's `fleet_membership_id` output), in which
+  case pass `membership_location` (`fleet_membership_location`) too; it defaults
+  to `global`, the provider default, only when neither source gives a location.
+
+`google_gke_hub_feature_membership` is keyed on the short id plus
+`membership_location`, which is what the module passes in both cases. Fleet
+memberships created through the cluster `fleet` block live in the cluster
+location, not in `global`.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -78,13 +87,17 @@ module "mesh" {
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
-| <a name="input_membership_id"></a> [membership\_id](#input\_membership\_id) | The ID of the GKE Hub Membership to which this Service Mesh feature will be enabled. This typically follows the format 'projects/{project}/locations/{location}/memberships/{membership\_id}'. | `string` | n/a | yes |
-| <a name="input_membership_location"></a> [membership\_location](#input\_membership\_location) | The location of the membership. | `string` | `"global"` | no |
+| <a name="input_membership_id"></a> [membership\_id](#input\_membership\_id) | The fleet membership of the cluster to enable Cloud Service Mesh on. Accepts either the short membership id ('my-cluster') or the full resource name reported by a fleet-registered cluster ('//gkehub.googleapis.com/projects/{project}/locations/{location}/memberships/{id}'); the short id and location are derived from the latter. | `string` | n/a | yes |
+| <a name="input_membership_location"></a> [membership\_location](#input\_membership\_location) | The location of the membership. Null (default) uses the location embedded in a full membership\_id resource name, falling back to 'global' for a bare short id. | `string` | `null` | no |
 | <a name="input_mesh_management"></a> [mesh\_management](#input\_mesh\_management) | Specifies how the Service Mesh control plane is managed. 'MANAGEMENT\_AUTOMATIC' indicates Google-managed control plane, while 'MANAGEMENT\_MANUAL' indicates customer-managed control plane. | `string` | `"MANAGEMENT_AUTOMATIC"` | no |
 | <a name="input_network_project_id"></a> [network\_project\_id](#input\_network\_project\_id) | The ID of the VPC host project (Shared VPC) in which the network resources belong | `string` | `null` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The ID of the Google Cloud project where the Service Mesh feature and related GKE Hub resources will be managed. If not provided, the provider's default project will be used. | `string` | n/a | yes |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+| ---- | ----------- |
+| <a name="output_membership_id"></a> [membership\_id](#output\_membership\_id) | Short fleet membership id passed to google\_gke\_hub\_feature\_membership. |
+| <a name="output_membership_location"></a> [membership\_location](#output\_membership\_location) | Fleet membership location passed to google\_gke\_hub\_feature\_membership. |
+| <a name="output_project_id"></a> [project\_id](#output\_project\_id) | Project in which the Service Mesh feature membership is managed (the fleet host project). |
 <!-- END_TF_DOCS -->
