@@ -6,7 +6,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.2.4] - 2026-11-10
+## [0.3.0] - 2026-11-10
 
 ### Added
 
@@ -87,6 +87,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   computed-`count`/`||`-on-strings wiring, and null-based gating of the fleet
   `default_cluster_config`.
 
-[Unreleased]: https://github.com/YpNo/terraform-google-kubernetes-engine/compare/v0.2.4...HEAD
-[0.2.4]: https://github.com/YpNo/terraform-google-kubernetes-engine/compare/v0.2.3...v0.2.4
+[Unreleased]: https://github.com/YpNo/terraform-google-kubernetes-engine/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/YpNo/terraform-google-kubernetes-engine/compare/v0.2.3...v0.3.0
 [0.1.0]: https://github.com/YpNo/terraform-google-kubernetes-engine/releases/tag/v0.1.0
